@@ -355,8 +355,20 @@
 
     kioskIdInput.addEventListener('change', function () {
         localStorage.setItem('kiosk_id', this.value);
+        let scanTimer = null;
+
+qrInput.addEventListener('input', function () {
+    clearTimeout(scanTimer);
+
+    scanTimer = setTimeout(() => {
+        if (qrInput.value.trim() !== '' && !requestRunning) {
+            sendCall();
+        }
+    }, 250);
+});
         focusScanner();
     });
+
 
     function focusScanner() {
         setTimeout(() => qrInput.focus(), 100);
