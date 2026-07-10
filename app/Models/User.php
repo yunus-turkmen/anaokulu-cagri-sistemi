@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Models;
+use Filament\Models\Contracts\FilamentUser;
 
+use Filament\Panel;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use Notifiable;
 
@@ -41,4 +43,15 @@ class User extends Authenticatable
     {
         return $this->belongsTo(SchoolClass::class);
     }
+
+public function canAccessPanel(Panel $panel): bool
+{
+    return $this->status === 'active'
+        && in_array($this->role, [
+            'super_admin',
+            'school_admin',
+            'teacher',
+        ], true);
+}
+
 }
