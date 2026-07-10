@@ -355,17 +355,7 @@
 
     kioskIdInput.addEventListener('change', function () {
         localStorage.setItem('kiosk_id', this.value);
-        let scanTimer = null;
-
-qrInput.addEventListener('input', function () {
-    clearTimeout(scanTimer);
-
-    scanTimer = setTimeout(() => {
-        if (qrInput.value.trim() !== '' && !requestRunning) {
-            sendCall();
-        }
-    }, 250);
-});
+        
         focusScanner();
     });
 
@@ -557,7 +547,17 @@ qrInput.addEventListener('input', function () {
             console.warn('Başarı sesi çalınamadı.', error);
         }
     }
+let scanTimer = null;
 
+qrInput.addEventListener('input', function () {
+    clearTimeout(scanTimer);
+
+    scanTimer = setTimeout(() => {
+        if (qrInput.value.trim() !== '' && !requestRunning) {
+            sendCall();
+        }
+    }, 250);
+});
     focusScanner();
 </script>
 </body>
