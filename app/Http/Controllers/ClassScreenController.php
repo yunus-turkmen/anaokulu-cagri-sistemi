@@ -20,15 +20,26 @@ class ClassScreenController extends Controller
         return view('class-screen.show', compact('schoolClass', 'calls'));
     }
 
-    public function complete($id)
-    {
-        $call = PickupCall::findOrFail($id);
+   public function complete(\Illuminate\Http\Request $request, $id)
+{
+    $call = \App\Models\PickupCall::findOrFail($id);
 
-        $call->update([
-            'status' => 'completed',
-            'completed_at' => now(),
+    $call->update([
+        'status' => 'completed',
+        'completed_at' => now(),
+    ]);
+
+    if ($request->expectsJson()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Öğrenci teslim edildi olarak işaretlendi.',
+            'call_id' => $call->id,
         ]);
-
-        return back()->with('success', 'Öğrenci teslim edildi olarak işaretlendi.');
     }
+
+    return back()->with(
+        'success',
+        'Öğrenci teslim edildi olarak işaretlendi.'
+    );
+}
 }

@@ -4,20 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SchoolClass extends Model
+class Kiosk extends Model
 {
-    protected $table = 'school_classes';
-
     protected $fillable = [
         'school_id',
         'name',
-        'screen_code',
+        'location',
+        'device_uuid',
+        'api_key',
         'status',
-        'is_active',
+        'last_seen_at',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'last_seen_at' => 'datetime',
     ];
 
     public function school()
@@ -25,8 +25,8 @@ class SchoolClass extends Model
         return $this->belongsTo(School::class);
     }
 
-    public function students()
+    public function pickupCalls()
     {
-        return $this->hasMany(Student::class);
+        return $this->hasMany(PickupCall::class);
     }
 }
