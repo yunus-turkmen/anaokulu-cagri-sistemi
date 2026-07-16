@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Öğrenci Çağırma Kiosku</title>
 
@@ -28,15 +27,15 @@
         body {
             margin: 0;
             min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-family: Arial, sans-serif;
             color: var(--text);
             background:
                 radial-gradient(circle at top, #1e3a5f 0%, transparent 45%),
                 var(--background);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
         }
 
         .kiosk {
@@ -44,11 +43,11 @@
         }
 
         .topbar {
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 15px;
-            margin-bottom: 18px;
         }
 
         .connection {
@@ -64,6 +63,11 @@
             width: 11px;
             height: 11px;
             border-radius: 50%;
+            background: var(--warning);
+            box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.15);
+        }
+
+        .connection.online .connection-dot {
             background: var(--primary);
             box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.15);
         }
@@ -90,11 +94,10 @@
             border-radius: 28px;
             background: rgba(30, 41, 59, 0.94);
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(15px);
         }
 
         .header {
-            padding: 35px 38px 25px;
+            padding: 34px 38px 22px;
             text-align: center;
         }
 
@@ -113,7 +116,6 @@
         h1 {
             margin: 0;
             font-size: clamp(30px, 6vw, 47px);
-            line-height: 1.1;
         }
 
         .description {
@@ -126,6 +128,10 @@
             padding: 12px 38px 38px;
         }
 
+        .field {
+            margin-top: 15px;
+        }
+
         .field-label {
             display: block;
             margin-bottom: 9px;
@@ -136,16 +142,15 @@
 
         input {
             width: 100%;
-            height: 74px;
+            height: 70px;
             border: 2px solid var(--border);
             border-radius: 18px;
             padding: 0 20px;
             background: rgba(15, 23, 42, 0.8);
             color: white;
             outline: none;
-            font-size: 24px;
+            font-size: 22px;
             text-align: center;
-            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         input:focus {
@@ -153,10 +158,10 @@
             box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.13);
         }
 
-        .send-button {
+        .button {
             width: 100%;
-            min-height: 68px;
-            margin-top: 16px;
+            min-height: 66px;
+            margin-top: 17px;
             border: 0;
             border-radius: 18px;
             padding: 16px 24px;
@@ -165,18 +170,23 @@
             font-size: 21px;
             font-weight: 900;
             cursor: pointer;
-            transition: transform 0.15s, background 0.15s;
         }
 
-        .send-button:hover {
+        .button:hover {
             background: var(--primary-dark);
-            transform: translateY(-2px);
         }
 
-        .send-button:disabled {
+        .button:disabled {
             cursor: wait;
-            opacity: 0.65;
-            transform: none;
+            opacity: 0.6;
+        }
+
+        .secondary-button {
+            background: var(--surface-light);
+        }
+
+        .secondary-button:hover {
+            background: #475569;
         }
 
         .message {
@@ -185,7 +195,7 @@
             border-radius: 18px;
             padding: 20px;
             text-align: center;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 800;
         }
 
@@ -211,6 +221,27 @@
             color: #fcd34d;
         }
 
+        .kiosk-info {
+            margin-bottom: 18px;
+            padding: 15px 18px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.55);
+            text-align: center;
+        }
+
+        .kiosk-info strong {
+            display: block;
+            font-size: 19px;
+        }
+
+        .kiosk-info span {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
         .footer {
             padding: 17px 25px;
             border-top: 1px solid var(--border);
@@ -220,24 +251,19 @@
             font-size: 14px;
         }
 
-        .settings {
-            margin-top: 14px;
+        .hidden {
+            display: none !important;
+        }
+
+        details {
+            margin-top: 16px;
             text-align: center;
         }
 
-        .settings summary {
+        summary {
             color: var(--muted);
             cursor: pointer;
             font-size: 13px;
-        }
-
-        .settings-content {
-            margin-top: 12px;
-        }
-
-        .settings-content input {
-            height: 48px;
-            font-size: 17px;
         }
 
         @media (max-width: 600px) {
@@ -246,15 +272,11 @@
             }
 
             .header {
-                padding: 28px 20px 20px;
+                padding: 28px 20px 18px;
             }
 
             .form-area {
                 padding: 10px 20px 25px;
-            }
-
-            .topbar {
-                margin-bottom: 10px;
             }
         }
     </style>
@@ -265,7 +287,7 @@
     <div class="topbar">
         <div class="connection" id="connection-status">
             <span class="connection-dot"></span>
-            <span id="connection-text">İnternet bağlantısı aktif</span>
+            <span id="connection-text">Kiosk doğrulanıyor...</span>
         </div>
 
         <button
@@ -281,87 +303,148 @@
         <div class="header">
             <div class="icon">🎓</div>
 
-            <h1>Öğrenci Çağırma</h1>
+            <h1 id="page-title">Kiosk Aktivasyonu</h1>
 
-            <p class="description">
-                Veli QR kodunu veya kartını okuyucuya okutunuz.
+            <p class="description" id="page-description">
+                Süper admin panelinden oluşturulan cihaz bilgilerini giriniz.
             </p>
         </div>
 
         <div class="form-area">
-            <label class="field-label" for="qr_code">
-                QR kodu veya kart numarası
-            </label>
-
-            <input
-                id="qr_code"
-                type="text"
-                inputmode="none"
-                autocomplete="off"
-                autofocus
-                placeholder="QR okutulması bekleniyor..."
-            >
-
-            <button
-                id="send-button"
-                class="send-button"
-                type="button"
-                onclick="sendCall()"
-            >
-                Çağrı Gönder
-            </button>
-
-            <div id="message" class="message"></div>
-
-            <details class="settings">
-                <summary>Kiosk ayarları</summary>
-
-                <div class="settings-content">
-                    <label class="field-label" for="kiosk_id">
-                        Kiosk ID
+            <section id="activation-panel">
+                <div class="field">
+                    <label class="field-label" for="device_code">
+                        16 Haneli Cihaz Kodu
                     </label>
 
                     <input
-                        id="kiosk_id"
-                        type="number"
-                        min="1"
-                        value="1"
+                        id="device_code"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="16"
+                        autocomplete="off"
+                        placeholder="0000000000000000"
                     >
                 </div>
-            </details>
+
+                <div class="field">
+                    <label class="field-label" for="api_key">
+                        API Anahtarı
+                    </label>
+
+                    <input
+                        id="api_key"
+                        type="password"
+                        autocomplete="off"
+                        placeholder="API anahtarını giriniz"
+                    >
+                </div>
+
+                <button
+                    id="activate-button"
+                    class="button"
+                    type="button"
+                    onclick="activateKiosk()"
+                >
+                    Kiosku Aktif Et
+                </button>
+            </section>
+
+            <section id="scanner-panel" class="hidden">
+                <div class="kiosk-info">
+                    <strong id="kiosk-name">Kiosk</strong>
+                    <span id="kiosk-location"></span>
+                </div>
+
+                <label class="field-label" for="qr_code">
+                    Veli QR kodunu veya kartını okutunuz
+                </label>
+
+                <input
+                    id="qr_code"
+                    type="text"
+                    inputmode="none"
+                    autocomplete="off"
+                    placeholder="QR okutulması bekleniyor..."
+                >
+
+                <button
+                    id="send-button"
+                    class="button"
+                    type="button"
+                    onclick="sendCall()"
+                >
+                    Çağrı Gönder
+                </button>
+
+                <details>
+                    <summary>Kiosk ayarları</summary>
+
+                    <button
+                        class="button secondary-button"
+                        type="button"
+                        onclick="forgetCredentials()"
+                    >
+                        Kiosk Bilgilerini Yeniden Gir
+                    </button>
+                </details>
+            </section>
+
+            <div id="message" class="message"></div>
         </div>
 
         <div class="footer">
-            Okutma tamamlandıktan sonra yeni QR kodu beklenir.
+            Kiosk Lisans Sistemi · Sürüm 2.0.0
         </div>
     </section>
 </div>
 
 <script>
+    const APP_VERSION = '2.0.0';
+
+    const activationPanel = document.getElementById('activation-panel');
+    const scannerPanel = document.getElementById('scanner-panel');
+
+    const deviceCodeInput = document.getElementById('device_code');
+    const apiKeyInput = document.getElementById('api_key');
     const qrInput = document.getElementById('qr_code');
-    const kioskIdInput = document.getElementById('kiosk_id');
-    const messageBox = document.getElementById('message');
+
+    const activateButton = document.getElementById('activate-button');
     const sendButton = document.getElementById('send-button');
 
+    const messageBox = document.getElementById('message');
+    const connectionStatus = document.getElementById('connection-status');
+    const connectionText = document.getElementById('connection-text');
+
     let requestRunning = false;
+    let scanTimer = null;
     let lastScannedCode = '';
     let lastScannedAt = 0;
 
-    const savedKioskId = localStorage.getItem('kiosk_id');
+    function createDeviceToken() {
+        const bytes = new Uint8Array(32);
 
-    if (savedKioskId) {
-        kioskIdInput.value = savedKioskId;
+        crypto.getRandomValues(bytes);
+
+        return Array.from(bytes)
+            .map(byte => byte.toString(16).padStart(2, '0'))
+            .join('');
     }
 
-    kioskIdInput.addEventListener('change', function () {
-        localStorage.setItem('kiosk_id', this.value);
-        
-        focusScanner();
-    });
+    let deviceToken = localStorage.getItem('kiosk_device_token');
 
+    if (!deviceToken) {
+        deviceToken = createDeviceToken();
 
-    function focusScanner() {
-        setTimeout(() => qrInput.focus(), 100);
+        localStorage.setItem('kiosk_device_token', deviceToken);
+    }
+
+    function getDeviceCode() {
+        return localStorage.getItem('kiosk_device_code') || '';
+    }
+
+    function getApiKey() {
+        return localStorage.getItem('kiosk_api_key') || '';
     }
 
     function showMessage(type, text) {
@@ -369,25 +452,168 @@
         messageBox.textContent = text;
     }
 
-    function resetMessageAfterDelay() {
+    function clearMessage(delay = 5000) {
         setTimeout(() => {
             messageBox.className = 'message';
             messageBox.textContent = '';
-        }, 5000);
+        }, delay);
+    }
+
+    function setConnection(type, text) {
+        connectionStatus.className = `connection ${type}`;
+        connectionText.textContent = text;
+    }
+
+    function focusScanner() {
+        setTimeout(() => {
+            qrInput.focus();
+        }, 100);
+    }
+
+    function showActivationPanel(message = null) {
+        activationPanel.classList.remove('hidden');
+        scannerPanel.classList.add('hidden');
+
+        document.getElementById('page-title').textContent =
+            'Kiosk Aktivasyonu';
+
+        document.getElementById('page-description').textContent =
+            'Süper admin panelinden oluşturulan cihaz bilgilerini giriniz.';
+
+        deviceCodeInput.value = getDeviceCode();
+        apiKeyInput.value = getApiKey();
+
+        if (message) {
+            showMessage('error', message);
+        }
+    }
+
+    function showScannerPanel(kiosk) {
+        activationPanel.classList.add('hidden');
+        scannerPanel.classList.remove('hidden');
+
+        document.getElementById('page-title').textContent =
+            'Öğrenci Çağırma';
+
+        document.getElementById('page-description').textContent =
+            'Veli QR kodunu veya kartını okuyucuya okutunuz.';
+
+        document.getElementById('kiosk-name').textContent =
+            kiosk?.name || 'Öğrenci Çağırma Kiosku';
+
+        document.getElementById('kiosk-location').textContent =
+            kiosk?.location || kiosk?.device_code || '';
+
+        setConnection('online', 'Kiosk çevrimiçi');
+
+        focusScanner();
+    }
+
+    async function activateKiosk(
+        deviceCode = deviceCodeInput.value.trim(),
+        apiKey = apiKeyInput.value.trim(),
+        silent = false
+    ) {
+        if (!/^\d{16}$/.test(deviceCode)) {
+            if (!silent) {
+                showMessage(
+                    'error',
+                    'Cihaz kodu tam 16 rakam olmalıdır.'
+                );
+            }
+
+            return false;
+        }
+
+        if (!apiKey) {
+            if (!silent) {
+                showMessage(
+                    'error',
+                    'API anahtarını giriniz.'
+                );
+            }
+
+            return false;
+        }
+
+        activateButton.disabled = true;
+
+        if (!silent) {
+            showMessage(
+                'loading',
+                'Kiosk etkinleştiriliyor...'
+            );
+        }
+
+        try {
+            const response = await fetch('/api/kiosk/activate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({
+                    device_code: deviceCode,
+                    api_key: apiKey,
+                    device_token: deviceToken,
+                    device_name: navigator.platform || 'Web Kiosk',
+                    app_version: APP_VERSION,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.message ||
+                    'Kiosk etkinleştirilemedi.'
+                );
+            }
+
+            localStorage.setItem(
+                'kiosk_device_code',
+                deviceCode
+            );
+
+            localStorage.setItem(
+                'kiosk_api_key',
+                apiKey
+            );
+
+            showScannerPanel(result.kiosk);
+
+            if (!silent) {
+                showMessage(
+                    'success',
+                    '✓ ' + result.message
+                );
+
+                clearMessage(3500);
+            }
+
+            return true;
+        } catch (error) {
+            setConnection(
+                'offline',
+                'Kiosk doğrulanamadı'
+            );
+
+            showActivationPanel(
+                error.message ||
+                'Kiosk etkinleştirilemedi.'
+            );
+
+            return false;
+        } finally {
+            activateButton.disabled = false;
+        }
     }
 
     async function sendCall() {
         const qrCode = qrInput.value.trim();
-        const kioskId = Number(kioskIdInput.value);
 
-        if (!qrCode) {
-            showMessage('error', 'Lütfen QR kodunu okutunuz.');
-            focusScanner();
-            return;
-        }
-
-        if (!kioskId) {
-            showMessage('error', 'Geçerli bir kiosk ID giriniz.');
+        if (!qrCode || requestRunning) {
             return;
         }
 
@@ -403,19 +629,21 @@
             );
 
             qrInput.value = '';
-            focusScanner();
-            return;
-        }
 
-        if (requestRunning) {
+            focusScanner();
+
             return;
         }
 
         requestRunning = true;
+
         sendButton.disabled = true;
         sendButton.textContent = 'İşleniyor...';
 
-        showMessage('loading', 'Öğrenci çağrısı oluşturuluyor...');
+        showMessage(
+            'loading',
+            'Öğrenci çağrısı oluşturuluyor...'
+        );
 
         try {
             const response = await fetch('/api/kiosk/call', {
@@ -427,7 +655,9 @@
                 },
                 body: JSON.stringify({
                     qr_code: qrCode,
-                    kiosk_id: kioskId,
+                    device_code: getDeviceCode(),
+                    api_key: getApiKey(),
+                    device_token: deviceToken,
                 }),
             });
 
@@ -445,19 +675,30 @@
 
             showMessage(
                 'success',
-                '✓ ' + (result.message || 'Çağrı başarıyla oluşturuldu.')
+                '✓ ' +
+                (
+                    result.message ||
+                    'Çağrı başarıyla oluşturuldu.'
+                )
             );
 
             playSuccessSound();
-            resetMessageAfterDelay();
+
+            clearMessage();
         } catch (error) {
             showMessage(
                 'error',
-                '✕ ' + (error.message || 'Bağlantı hatası oluştu.')
+                '✕ ' +
+                (
+                    error.message ||
+                    'Bağlantı hatası oluştu.'
+                )
             );
         } finally {
             qrInput.value = '';
+
             requestRunning = false;
+
             sendButton.disabled = false;
             sendButton.textContent = 'Çağrı Gönder';
 
@@ -465,58 +706,102 @@
         }
     }
 
+    qrInput.addEventListener('input', function () {
+        clearTimeout(scanTimer);
+
+        scanTimer = setTimeout(() => {
+            if (
+                qrInput.value.trim() &&
+                !requestRunning
+            ) {
+                sendCall();
+            }
+        }, 250);
+    });
+
     qrInput.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
+        if (
+            ['Enter', 'Tab', 'Escape'].includes(event.key)
+        ) {
             event.preventDefault();
-            sendCall();
+
+            if (
+                qrInput.value.trim() &&
+                !requestRunning
+            ) {
+                clearTimeout(scanTimer);
+
+                sendCall();
+            }
         }
     });
 
-    document.addEventListener('click', function (event) {
-        if (
-            event.target !== kioskIdInput &&
-            event.target.tagName !== 'SUMMARY'
-        ) {
-            focusScanner();
+    function forgetCredentials() {
+        const confirmed = confirm(
+            'Kiosk kodu ve API anahtarı bu cihazdan silinsin mi?'
+        );
+
+        if (!confirmed) {
+            return;
         }
-    });
+
+        localStorage.removeItem('kiosk_device_code');
+        localStorage.removeItem('kiosk_api_key');
+
+        messageBox.className = 'message';
+        messageBox.textContent = '';
+
+        setConnection(
+            '',
+            'Kiosk etkinleştirilmedi'
+        );
+
+        showActivationPanel();
+    }
 
     function toggleFullscreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
+
             return;
         }
 
         document.exitFullscreen();
     }
 
-    function updateConnectionStatus() {
-        const element = document.getElementById('connection-status');
-        const text = document.getElementById('connection-text');
-
-        if (navigator.onLine) {
-            element.classList.remove('offline');
-            text.textContent = 'İnternet bağlantısı aktif';
-        } else {
-            element.classList.add('offline');
-            text.textContent = 'İnternet bağlantısı yok';
+    function updateInternetStatus() {
+        if (!navigator.onLine) {
+            setConnection(
+                'offline',
+                'İnternet bağlantısı yok'
+            );
         }
     }
 
-    window.addEventListener('online', updateConnectionStatus);
-    window.addEventListener('offline', updateConnectionStatus);
+    window.addEventListener(
+        'online',
+        bootKiosk
+    );
 
-    updateConnectionStatus();
+    window.addEventListener(
+        'offline',
+        updateInternetStatus
+    );
 
     function playSuccessSound() {
         try {
-            const audioContext = new (
+            const AudioContextClass =
                 window.AudioContext ||
-                window.webkitAudioContext
-            )();
+                window.webkitAudioContext;
 
-            const oscillator = audioContext.createOscillator();
-            const gain = audioContext.createGain();
+            const audioContext =
+                new AudioContextClass();
+
+            const oscillator =
+                audioContext.createOscillator();
+
+            const gain =
+                audioContext.createGain();
 
             oscillator.connect(gain);
             gain.connect(audioContext.destination);
@@ -542,23 +827,53 @@
             );
 
             oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.35);
+
+            oscillator.stop(
+                audioContext.currentTime + 0.35
+            );
         } catch (error) {
-            console.warn('Başarı sesi çalınamadı.', error);
+            console.warn(
+                'Başarı sesi çalınamadı.',
+                error
+            );
         }
     }
-let scanTimer = null;
 
-qrInput.addEventListener('input', function () {
-    clearTimeout(scanTimer);
+    async function bootKiosk() {
+        if (!navigator.onLine) {
+            updateInternetStatus();
+            showActivationPanel();
 
-    scanTimer = setTimeout(() => {
-        if (qrInput.value.trim() !== '' && !requestRunning) {
-            sendCall();
+            return;
         }
-    }, 250);
-});
-    focusScanner();
+
+        const deviceCode = getDeviceCode();
+        const apiKey = getApiKey();
+
+        if (!deviceCode || !apiKey) {
+            setConnection(
+                '',
+                'Kiosk etkinleştirilmedi'
+            );
+
+            showActivationPanel();
+
+            return;
+        }
+
+        setConnection(
+            '',
+            'Kiosk doğrulanıyor...'
+        );
+
+        await activateKiosk(
+            deviceCode,
+            apiKey,
+            true
+        );
+    }
+
+    bootKiosk();
 </script>
 </body>
 </html>
